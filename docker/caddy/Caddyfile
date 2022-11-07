@@ -1,0 +1,38 @@
+{
+    debug
+    local_certs
+}
+
+https:// {
+    header {
+        -Server
+        X-Real-IP {remote}
+        #Content-Security-Policy: "default-src 'self'"
+        Strict-Transport-Security max-age=31536000
+        X-Content-Type-Options: nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer-when-downgrade
+        Permissions-Policy interest-cohort=()
+    }
+
+    tls internal {
+        on_demand
+    }
+
+    root * /var/www/html/public
+    try_files {path} index.php =404
+    php_fastcgi php:9000 {
+        #env APP_ENV prod
+    }
+    encode gzip
+    file_server
+
+    log {
+        output file "/logs/caddy.log" {
+            log_level INFO
+            roll_size 200
+            roll_keep_for 14d
+            roll_keep 100
+        }
+    }
+}
